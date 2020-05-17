@@ -1,7 +1,7 @@
 version: "3"
 
 networks: 
-  - laravel
+  laravel:
 
 services: 
   rdbms:
@@ -10,14 +10,15 @@ services:
     restart: unless-stopped
     environment: 
       MYSQL_DATABASE: laravel
-      MYSQL_USERNAME: laravel
+      MYSQL_USER: laravel
       MYSQL_PASSWORD: 14r4v31
+      MYSQL_ROOT_PASSWORD: w84m0r3D474
     networks: 
       - laravel
     ports: 
       - "3306:3306"
     volumes:
-      - ./data:/var/lib/mysql:rw,delegated
+      - ./data:/var/lib/mysql
 
   store:
     image: redis:4.0-alpine
@@ -43,10 +44,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
-    tty: true
     restart: unless-stopped
     volumes:
-      - ./src:/var/www:cached
+      - ./src:/var/www
     ports:
       - "80:80"
     networks:
