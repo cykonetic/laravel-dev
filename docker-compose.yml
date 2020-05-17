@@ -1,0 +1,57 @@
+version: "3"
+
+networks: 
+  - laravel
+
+services: 
+  rdbms:
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    environment: 
+      MYSQL_DATABASE: laravel
+      MYSQL_USERNAME: laravel
+      MYSQL_PASSWORD: 14r4v31
+    networks: 
+      - laravel
+    ports: 
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql:rw,delegated
+
+  store:
+    image: redis:4.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+
+  smtp:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - laravel
+
+  httpd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - ./src:/var/www:cached
+    ports:
+      - "80:80"
+    networks:
+      - laravel
+    depends_on:
+      - rdbms
+      - store
+      - smtp    
